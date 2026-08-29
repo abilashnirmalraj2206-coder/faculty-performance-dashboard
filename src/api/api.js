@@ -1,23 +1,21 @@
-export const API_URL =
-  "https://faculty-performance-dashboard.onrender.com/api";
+export const API_URL = "https://faculty-performance-dashboard.onrender.com";
 
 export const authHeaders = () => {
   const token = localStorage.getItem("token");
 
-  return {
+  const headers = {
     "Content-Type": "application/json",
-    ...(token && {
-      Authorization: `Bearer ${token}`,
-    }),
   };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
 };
 
 export const apiFetch = async (endpoint, options = {}) => {
-  const cleanEndpoint = endpoint.startsWith("/api")
-    ? endpoint.replace("/api", "")
-    : endpoint;
-
-  const response = await fetch(`${API_URL}${cleanEndpoint}`, {
+  const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers: {
       ...authHeaders(),
