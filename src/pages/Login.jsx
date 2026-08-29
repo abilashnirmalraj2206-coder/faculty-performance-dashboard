@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { LogIn, Eye, EyeOff } from "lucide-react";
+import { apiFetch } from "../api/api";
 
 function Login({ onLogin, onRegister }) {
   const [email, setEmail] = useState("");
@@ -18,19 +19,13 @@ function Login({ onLogin, onRegister }) {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        "http://localhost:5000/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        }
-      );
+      const response = await apiFetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
       const data = await response.json();
 
@@ -51,7 +46,7 @@ function Login({ onLogin, onRegister }) {
 
     } catch (error) {
       console.error("Login error:", error);
-      alert(error.message);
+      alert(error.message || "Failed to fetch");
     } finally {
       setLoading(false);
     }
