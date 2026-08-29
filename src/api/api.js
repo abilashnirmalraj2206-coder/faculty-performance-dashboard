@@ -1,17 +1,23 @@
 export const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  "https://faculty-performance-dashboard.onrender.com/api";
 
 export const authHeaders = () => {
   const token = localStorage.getItem("token");
 
   return {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    ...(token && {
+      Authorization: `Bearer ${token}`,
+    }),
   };
 };
 
 export const apiFetch = async (endpoint, options = {}) => {
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const cleanEndpoint = endpoint.startsWith("/api")
+    ? endpoint.replace("/api", "")
+    : endpoint;
+
+  const response = await fetch(`${API_URL}${cleanEndpoint}`, {
     ...options,
     headers: {
       ...authHeaders(),
