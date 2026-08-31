@@ -8,10 +8,13 @@ import {
   Pencil,
 } from "lucide-react";
 
+import { apiFetch } from "../api/api";
+
 function Consultancy() {
   const [consultancies, setConsultancies] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [newConsultancy, setNewConsultancy] = useState({
     title: "",
@@ -21,30 +24,14 @@ function Consultancy() {
   });
 
   // ==========================================
-  // AUTH HEADERS
-  // ==========================================
-
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-
-    return {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    };
-  };
-
-  // ==========================================
   // FETCH CONSULTANCIES
   // ==========================================
 
   const fetchConsultancies = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/consultancies",
-        {
-          headers: getAuthHeaders(),
-        }
-      );
+      setLoading(true);
+
+      const response = await apiFetch("/api/consultancies");
 
       if (!response.ok) {
         throw new Error("Failed to fetch consultancies");
@@ -59,6 +46,11 @@ function Consultancy() {
         "Error fetching consultancies:",
         error
       );
+
+      alert("Failed to fetch consultancy data");
+
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -122,11 +114,10 @@ function Consultancy() {
       // UPDATE CONSULTANCY
 
       if (editingId) {
-        response = await fetch(
-          `http://localhost:5000/api/consultancies/${editingId}`,
+        response = await apiFetch(
+          `/api/consultancies/${editingId}`,
           {
             method: "PUT",
-            headers: getAuthHeaders(),
             body: JSON.stringify(newConsultancy),
           }
         );
@@ -135,11 +126,10 @@ function Consultancy() {
       // ADD CONSULTANCY
 
       else {
-        response = await fetch(
-          "http://localhost:5000/api/consultancies",
+        response = await apiFetch(
+          "/api/consultancies",
           {
             method: "POST",
-            headers: getAuthHeaders(),
             body: JSON.stringify(newConsultancy),
           }
         );
@@ -164,8 +154,13 @@ function Consultancy() {
       });
 
       setEditingId(null);
-
       setShowForm(false);
+
+      alert(
+        editingId
+          ? "Consultancy updated successfully!"
+          : "Consultancy added successfully!"
+      );
 
     } catch (error) {
       console.error(
@@ -192,21 +187,25 @@ function Consultancy() {
     if (!confirmed) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/consultancies/${id}`,
+      const response = await apiFetch(
+        `/api/consultancies/${id}`,
         {
           method: "DELETE",
-          headers: getAuthHeaders(),
         }
       );
 
       if (!response.ok) {
+        const errorData = await response.json();
+
         throw new Error(
+          errorData.message ||
           "Failed to delete consultancy"
         );
       }
 
       await fetchConsultancies();
+
+      alert("Consultancy deleted successfully!");
 
     } catch (error) {
       console.error(
@@ -214,7 +213,10 @@ function Consultancy() {
         error
       );
 
-      alert("Failed to delete consultancy");
+      alert(
+        error.message ||
+        "Failed to delete consultancy"
+      );
     }
   };
 
@@ -224,7 +226,6 @@ function Consultancy() {
 
   const closeForm = () => {
     setShowForm(false);
-
     setEditingId(null);
 
     setNewConsultancy({
@@ -273,7 +274,6 @@ function Consultancy() {
           className="flex items-center gap-2 bg-white text-black px-5 py-3 rounded-xl font-medium hover:scale-105 transition"
         >
           <Plus size={18} />
-
           Add Consultancy
         </button>
 
@@ -336,9 +336,24 @@ function Consultancy() {
       </div>
 
 
+      {/* LOADING */}
+
+      {loading && (
+
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
+
+          <p className="text-neutral-400">
+            Loading consultancy data...
+          </p>
+
+        </div>
+
+      )}
+
+
       {/* EMPTY STATE */}
 
-      {consultancies.length === 0 && (
+      {!loading && consultancies.length === 0 && (
 
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
 
@@ -362,99 +377,103 @@ function Consultancy() {
 
       {/* CONSULTANCY CARDS */}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {!loading && consultancies.length > 0 && (
 
-        {consultancies.map((consultancy) => (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-          <div
-            key={consultancy._id}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:bg-white/[0.05] transition"
-          >
+          {consultancies.map((consultancy) => (
 
-            <div className="flex items-start justify-between">
+            <div
+              key={consultancy._id}
+              className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:bg-white/[0.05] transition"
+            >
 
-              <div className="pr-4">
+              <div className="flex items-start justify-between">
 
-                <h2 className="text-xl font-semibold">
-                  {consultancy.title}
-                </h2>
+                <div className="pr-4">
 
-                <p className="text-blue-400 text-sm mt-2">
-                  {consultancy.client}
-                </p>
+                  <h2 className="text-xl font-semibold">
+                    {consultancy.title}
+                  </h2>
+
+                  <p className="text-blue-400 text-sm mt-2">
+                    {consultancy.client}
+                  </p>
+
+                </div>
+
+
+                {/* ACTION BUTTONS */}
+
+                <div className="flex items-center gap-2">
+
+                  <button
+                    onClick={() =>
+                      openEditForm(consultancy)
+                    }
+                    className="p-2 text-blue-400 rounded-lg hover:bg-blue-400/10 transition"
+                    title="Edit Consultancy"
+                  >
+                    <Pencil size={19} />
+                  </button>
+
+
+                  <button
+                    onClick={() =>
+                      deleteConsultancy(consultancy._id)
+                    }
+                    className="p-2 text-red-400 rounded-lg hover:bg-red-400/10 transition"
+                    title="Delete Consultancy"
+                  >
+                    <Trash2 size={19} />
+                  </button>
+
+                </div>
 
               </div>
 
 
-              {/* ACTION BUTTONS */}
+              {/* DETAILS */}
 
-              <div className="flex items-center gap-2">
+              <div className="mt-6 flex justify-between items-center text-sm">
 
-                <button
-                  onClick={() =>
-                    openEditForm(consultancy)
-                  }
-                  className="p-2 text-blue-400 rounded-lg hover:bg-blue-400/10 transition"
-                  title="Edit Consultancy"
+                <div>
+
+                  <p className="text-neutral-500">
+                    Project Value
+                  </p>
+
+                  <p className="mt-1 font-semibold">
+
+                    ₹
+                    {Number(
+                      consultancy.amount
+                    ).toLocaleString("en-IN")}
+
+                  </p>
+
+                </div>
+
+
+                <span
+                  className={`px-3 py-1 rounded-full text-xs ${
+                    consultancy.status === "Completed"
+                      ? "bg-green-500/10 text-green-400"
+                      : "bg-yellow-500/10 text-yellow-400"
+                  }`}
                 >
-                  <Pencil size={19} />
-                </button>
-
-
-                <button
-                  onClick={() =>
-                    deleteConsultancy(consultancy._id)
-                  }
-                  className="p-2 text-red-400 rounded-lg hover:bg-red-400/10 transition"
-                  title="Delete Consultancy"
-                >
-                  <Trash2 size={19} />
-                </button>
+                  {consultancy.status}
+                </span>
 
               </div>
 
             </div>
 
+          ))}
 
-            {/* DETAILS */}
+        </div>
 
-            <div className="mt-6 flex justify-between items-center text-sm">
-
-              <div>
-
-                <p className="text-neutral-500">
-                  Project Value
-                </p>
-
-                <p className="mt-1 font-semibold">
-
-                  ₹
-                  {Number(
-                    consultancy.amount
-                  ).toLocaleString("en-IN")}
-
-                </p>
-
-              </div>
-
-
-              <span
-                className={`px-3 py-1 rounded-full text-xs ${
-                  consultancy.status === "Completed"
-                    ? "bg-green-500/10 text-green-400"
-                    : "bg-yellow-500/10 text-yellow-400"
-                }`}
-              >
-                {consultancy.status}
-              </span>
-
-            </div>
-
-          </div>
-
-        ))}
-
-      </div>
+      )}
 
 
       {/* ADD / EDIT FORM */}
@@ -467,8 +486,6 @@ function Consultancy() {
             onSubmit={handleSubmit}
             className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-[#111] p-8"
           >
-
-            {/* CLOSE BUTTON */}
 
             <button
               type="button"
