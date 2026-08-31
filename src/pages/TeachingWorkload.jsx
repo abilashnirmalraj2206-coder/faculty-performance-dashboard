@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, X, Clock, Pencil } from "lucide-react";
+import { apiFetch } from "../api/api";
 
 function TeachingWorkload() {
   const [workloads, setWorkloads] = useState([]);
@@ -19,9 +20,7 @@ function TeachingWorkload() {
 
   const fetchWorkloads = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/api/workloads"
-      );
+      const response = await apiFetch("/api/workloads");
 
       if (!response.ok) {
         throw new Error("Failed to fetch workloads");
@@ -94,28 +93,18 @@ function TeachingWorkload() {
       let response;
 
       if (editingId) {
-        // UPDATE WORKLOAD
-
-        response = await fetch(
-          `http://localhost:5000/api/workloads/${editingId}`,
+        response = await apiFetch(
+          `/api/workloads/${editingId}`,
           {
             method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
             body: JSON.stringify(newWorkload),
           }
         );
       } else {
-        // ADD WORKLOAD
-
-        response = await fetch(
-          "http://localhost:5000/api/workloads",
+        response = await apiFetch(
+          "/api/workloads",
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
             body: JSON.stringify(newWorkload),
           }
         );
@@ -155,8 +144,8 @@ function TeachingWorkload() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/workloads/${id}`,
+      const response = await apiFetch(
+        `/api/workloads/${id}`,
         {
           method: "DELETE",
         }
@@ -215,7 +204,6 @@ function TeachingWorkload() {
 
       </div>
 
-
       {/* TOTAL HOURS */}
 
       <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
@@ -242,7 +230,6 @@ function TeachingWorkload() {
 
       </div>
 
-
       {/* WORKLOAD CARDS */}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -268,7 +255,6 @@ function TeachingWorkload() {
 
               </div>
 
-
               {/* EDIT + DELETE */}
 
               <div className="flex items-center gap-2">
@@ -282,9 +268,7 @@ function TeachingWorkload() {
                 </button>
 
                 <button
-                  onClick={() =>
-                    deleteWorkload(workload._id)
-                  }
+                  onClick={() => deleteWorkload(workload._id)}
                   className="p-2 text-red-400 rounded-lg hover:bg-red-400/10"
                   title="Delete Workload"
                 >
@@ -294,7 +278,6 @@ function TeachingWorkload() {
               </div>
 
             </div>
-
 
             <div className="mt-6 flex justify-between text-sm">
 
@@ -309,7 +292,6 @@ function TeachingWorkload() {
                 </p>
 
               </div>
-
 
               <div>
 
@@ -331,7 +313,6 @@ function TeachingWorkload() {
 
       </div>
 
-
       {/* EMPTY STATE */}
 
       {workloads.length === 0 && (
@@ -343,7 +324,6 @@ function TeachingWorkload() {
         </div>
 
       )}
-
 
       {/* ADD / EDIT WORKLOAD FORM */}
 
@@ -369,7 +349,6 @@ function TeachingWorkload() {
               <X size={20} />
             </button>
 
-
             <h2 className="text-2xl font-bold mb-6">
 
               {editingId
@@ -378,9 +357,7 @@ function TeachingWorkload() {
 
             </h2>
 
-
             <div className="space-y-5">
-
 
               {/* SUBJECT */}
 
@@ -405,7 +382,6 @@ function TeachingWorkload() {
 
               </div>
 
-
               {/* COURSE CODE */}
 
               <div>
@@ -428,7 +404,6 @@ function TeachingWorkload() {
                 />
 
               </div>
-
 
               {/* SEMESTER */}
 
@@ -453,7 +428,6 @@ function TeachingWorkload() {
 
               </div>
 
-
               {/* HOURS */}
 
               <div>
@@ -477,7 +451,6 @@ function TeachingWorkload() {
                 />
 
               </div>
-
 
               {/* SAVE BUTTON */}
 

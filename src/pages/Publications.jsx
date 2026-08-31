@@ -29,7 +29,7 @@ function Publications() {
     try {
       setLoading(true);
 
-      const response = await apiFetch("/publications");
+      const response = await apiFetch("/api/publications");
 
       if (!response.ok) {
         throw new Error("Failed to fetch publications");
@@ -111,7 +111,7 @@ function Publications() {
 
       if (editingId) {
         response = await apiFetch(
-          `/publications/${editingId}`,
+          `/api/publications/${editingId}`,
           {
             method: "PUT",
             body: JSON.stringify(newPublication),
@@ -123,7 +123,7 @@ function Publications() {
 
       else {
         response = await apiFetch(
-          "/publications",
+          "/api/publications",
           {
             method: "POST",
             body: JSON.stringify(newPublication),
@@ -185,7 +185,7 @@ function Publications() {
 
     try {
       const response = await apiFetch(
-        `/publications/${id}`,
+        `/api/publications/${id}`,
         {
           method: "DELETE",
         }
@@ -263,7 +263,6 @@ function Publications() {
 
       </div>
 
-
       {/* SUMMARY */}
 
       <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
@@ -290,7 +289,6 @@ function Publications() {
 
       </div>
 
-
       {/* LOADING */}
 
       {loading && (
@@ -304,7 +302,6 @@ function Publications() {
         </div>
 
       )}
-
 
       {/* EMPTY STATE */}
 
@@ -328,7 +325,6 @@ function Publications() {
         </div>
 
       )}
-
 
       {/* PUBLICATION CARDS */}
 
@@ -356,7 +352,6 @@ function Publications() {
                   </p>
 
                 </div>
-
 
                 {/* ACTION BUTTONS */}
 
@@ -386,7 +381,6 @@ function Publications() {
 
               </div>
 
-
               {/* YEAR */}
 
               <div className="mt-6">
@@ -409,7 +403,6 @@ function Publications() {
 
       )}
 
-
       {/* ADD / EDIT FORM */}
 
       {showForm && (
@@ -431,7 +424,6 @@ function Publications() {
               <X size={20} />
             </button>
 
-
             {/* FORM TITLE */}
 
             <h2 className="text-2xl font-bold mb-6">
@@ -442,9 +434,7 @@ function Publications() {
 
             </h2>
 
-
             <div className="space-y-5">
-
 
               {/* TITLE */}
 
@@ -469,7 +459,6 @@ function Publications() {
 
               </div>
 
-
               {/* JOURNAL */}
 
               <div>
@@ -492,7 +481,6 @@ function Publications() {
                 />
 
               </div>
-
 
               {/* YEAR */}
 
@@ -518,7 +506,6 @@ function Publications() {
                 />
 
               </div>
-
 
               {/* SAVE */}
 
